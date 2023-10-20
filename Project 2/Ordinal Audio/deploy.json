@@ -1,0 +1,7 @@
+{ 
+  "p": "brc-20",
+  "op": "deploy",
+  "tick": "BothWorlds",
+  "max": "100",
+  "buri": "https://bothworlds.infura.io/ipfs/"
+}
