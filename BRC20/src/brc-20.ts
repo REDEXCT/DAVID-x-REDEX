@@ -47,19 +47,38 @@ export class BRC20 implements IBRC20 {
     return bags.reduce((prev, curr) => prev + curr.tokens, 0)
   }
 
-  async transfer(to: string, amount: number): Promise<void> {
-    let _amount = amount
-    const owner = this.computer.getPublicKey()
-    const bags = await this.getBags(owner)
-    const results = []
-    while (_amount > 0 && bags.length > 0) {
-      const [bag] = bags.splice(0, 1)
-      const available = Math.min(_amount, bag.tokens)
-      // eslint-disable-next-line no-await-in-loop
-      results.push(await bag.transfer(to, available))
-      _amount -= available
-    }
-    if (_amount > 0) throw new Error('Could not send entire amount')
-    await Promise.all(results)
+ async transfer(to: string, amount: number): Promise<void> {
+  // Define the royalty percentage (e.g., 5%)
+  const royaltyPercentage = 0.05;
+  const royaltyAmount = amount * royaltyPercentage;
+  const transferAmount = amount - royaltyAmount;
+
+  // The specified wallet address for receiving royalties
+  const royaltyWalletAddress = "bc1qdxsfwfr0r74qwe8ktptfe9yqnxzpd84w98tr2z";
+
+  // Ensure the transfer amount plus royalty does not exceed the balance
+  if (transferAmount + royaltyAmount > this.balanceOf(this.computer.getPublicKey())) {
+    throw new Error('Insufficient funds to cover transfer and royalty');
   }
+
+  // Transfer the royalty to the specified wallet address
+  await this.internalTransfer(royaltyWalletAddress, royaltyAmount);
+
+  // Transfer the remaining amount to the recipient
+  await this.internalTransfer(to, transferAmount);
+}
+
+async internalTransfer(to: string, amount: number): Promise<void> {
+  let _amount = amount;
+  const owner = this.computer.getPublicKey();
+  const bags = await this.getBags(owner);
+  const results = [];
+  while (_amount > 0 && bags.length > 0) {
+    const [bag] = bags.splice(0, 1);
+    const available = Math.min(_amount, bag.tokens);
+    results.push(await bag.transfer(to, available));
+    _amount -= available;
+  }
+  if (_amount > 0) throw new Error('Could not send entire amount');
+  await Promise.all(results);
 }
