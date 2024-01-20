@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Images to IPFS</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-black text-white flex items-center justify-center h-screen">
+    <div class="container mx-auto px-4">
+        <div class="max-w-md mx-auto bg-gray-800 rounded-lg overflow-hidden md:max-w-lg">
+            <div class="md:flex">
+                <div class="w-full p-4">
+                    <form action="http://localhost:3000/upload" method="post" enctype="multipart/form-data" class="flex flex-col space-y-4">
+                        <div>
+                            <label class="block text-white">Select Files</label>
+                            <input type="file" name="files" multiple class="block w-full text-lg p-2 border border-gray-500 rounded mt-1" />
+                        </div>
+                        <input type="submit" value="Upload to IPFS" class="w-full bg-blue-600 rounded p-2 hover:bg-blue-700 cursor-pointer"/>
+                    </form>
+                    <div id="previewArea" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="preview.js"></script>
+</body>
+</html>
